@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-public class InstrumentRequest {
+public class InstrumentReponse {
     public String name;
     public String description;
     public int quantity;
