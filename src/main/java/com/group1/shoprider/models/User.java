@@ -17,6 +17,15 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "firstName")
+    private String firstName;
+
+    @Column(name = "lastName")
+    private String lastName;
+
+    @Column(name = "address")
+    private String address;
+
     @Column(name = "username")
     private String username;
 
