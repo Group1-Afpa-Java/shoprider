@@ -7,7 +7,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -47,16 +46,15 @@ public class ShopriderApplication implements CommandLineRunner {
 		Optional<Type> type4 = typeRepository.findByName("SAXOPHONE");
 		if (type4.isEmpty()) {
 			Type saxophoneType = new Type();
-			saxophoneType.setName("GUITAR");
+			saxophoneType.setName("SAXOPHONE");
 			typeRepository.save(saxophoneType);
 		}
 
 		Optional<Type> type5 = typeRepository.findByName("VIOLON");
 		if (type5.isEmpty()) {
 			Type violonType = new Type();
-			violonType.setName("GUITAR");
+			violonType.setName("VIOLON");
 			typeRepository.save(violonType);
 		}
-
 	}
 }

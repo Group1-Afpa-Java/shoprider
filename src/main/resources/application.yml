@@ -2,7 +2,7 @@ spring:
   application:
     name: shoprider
   datasource:
-    url: jdbc:postgresql://localhost:5432/shopridertest
+    url: jdbc:postgresql://localhost:5432/shoprider
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
@@ -13,3 +13,11 @@ spring:
       ddl-auto: update
 server:
   port: 8080
+application:
+  security:
+    cors:
+      origin: http://localhost:5173
+      max-age: 3600
+    jwt:
+      secret-key: d9ce872c30e87508547c78b58dac596886328a7a1d5f553fb7b217e76158c1bd
+      expiration-time: 86400000 # 1 day

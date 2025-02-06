@@ -1,4 +1,4 @@
-package com.group1.shoprider.service;
+package com.group1.shoprider.services;
 
 
 import com.group1.shoprider.dtos.instrument.InstrumentReponse;
