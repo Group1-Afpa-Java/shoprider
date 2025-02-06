@@ -22,4 +22,6 @@ public class Type {
     @Column(name = "name", unique = true)
     private String name;
 
+
+
 }

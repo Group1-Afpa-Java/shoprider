@@ -1,35 +1,60 @@
 package com.group1.shoprider;
 
-import com.group1.shoprider.models.Role;
-import com.group1.shoprider.repository.RepositoryRole;
+import com.group1.shoprider.models.Type;
+import com.group1.shoprider.repository.RepositoryType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @SpringBootApplication
 public class ShopriderApplication implements CommandLineRunner {
-	private final RepositoryRole repositoryRole;
+
+	private final RepositoryType typeRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShopriderApplication.class, args);
 	}
 
-
 	@Override
-	public void run(String... args) {
-		Role role1 = new Role();
-		role1.setName("CLIENT");
+	public void run(String... args) throws Exception {
 
-		Role role2 = new Role();
-		role2.setName("ADMIN");
+		Optional<Type> type1 = typeRepository.findByName("GUITAR");
+		if (type1.isEmpty()) {
+			Type guitarType = new Type();
+			guitarType.setName("GUITAR");
+			typeRepository.save(guitarType);
+		}
 
-		repositoryRole.saveAll(List.of(role1, role2));
+		Optional<Type> type2 = typeRepository.findByName("PIANO");
+		if (type2.isEmpty()) {
+			Type pianoType = new Type();
+			pianoType.setName("PIANO");
+			typeRepository.save(pianoType);
+		}
+
+		Optional<Type> type3 = typeRepository.findByName("DRUM");
+		if (type3.isEmpty()) {
+			Type drumType = new Type();
+			drumType.setName("DRUM");
+			typeRepository.save(drumType);
+		}
+
+		Optional<Type> type4 = typeRepository.findByName("SAXOPHONE");
+		if (type4.isEmpty()) {
+			Type saxophoneType = new Type();
+			saxophoneType.setName("SAXOPHONE");
+			typeRepository.save(saxophoneType);
+		}
+
+		Optional<Type> type5 = typeRepository.findByName("VIOLON");
+		if (type5.isEmpty()) {
+			Type violonType = new Type();
+			violonType.setName("VIOLON");
+			typeRepository.save(violonType);
+		}
 	}
-
-
 }
