@@ -20,11 +20,20 @@ public class Instrument {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
+
     @Column(name = "price")
     private Double price;
+
 
     @ManyToOne
     @JoinColumn(name = "type_id")
     private Type type;
+
 
 }

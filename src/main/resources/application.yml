@@ -2,7 +2,7 @@ spring:
   application:
     name: shoprider
   datasource:
-    url: jdbc:postgresql://localhost:5432/shoprider
+    url: jdbc:postgresql://localhost:5432/shopridertest
     username: postgres
     password: password
     driver-class-name: org.postgresql.Driver
@@ -10,5 +10,6 @@ spring:
     properties:
       dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create
-
+      ddl-auto: update
+server:
+  port: 8080
