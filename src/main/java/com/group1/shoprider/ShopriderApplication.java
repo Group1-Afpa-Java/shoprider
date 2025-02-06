@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @SpringBootApplication
@@ -21,21 +22,41 @@ public class ShopriderApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		Type type1 = new Type();
-		type1.setName("GUITAR");
 
-		Type type2 = new Type();
-		type2.setName("PiANO");
+		Optional<Type> type1 = typeRepository.findByName("GUITAR");
+		if (type1.isEmpty()) {
+			Type guitarType = new Type();
+			guitarType.setName("GUITAR");
+			typeRepository.save(guitarType);
+		}
 
-		Type type3 = new Type();
-		type3.setName("DRUM");
+		Optional<Type> type2 = typeRepository.findByName("PIANO");
+		if (type2.isEmpty()) {
+			Type pianoType = new Type();
+			pianoType.setName("PIANO");
+			typeRepository.save(pianoType);
+		}
 
-		Type type4 = new Type();
-		type4.setName("SAXOPHONE");
+		Optional<Type> type3 = typeRepository.findByName("DRUM");
+		if (type3.isEmpty()) {
+			Type drumType = new Type();
+			drumType.setName("DRUM");
+			typeRepository.save(drumType);
+		}
 
-		Type type5 = new Type();
-		type5.setName("VIOLON");
+		Optional<Type> type4 = typeRepository.findByName("SAXOPHONE");
+		if (type4.isEmpty()) {
+			Type saxophoneType = new Type();
+			saxophoneType.setName("GUITAR");
+			typeRepository.save(saxophoneType);
+		}
 
-		typeRepository.saveAll(List.of(type1, type2, type3, type4, type5));
+		Optional<Type> type5 = typeRepository.findByName("VIOLON");
+		if (type5.isEmpty()) {
+			Type violonType = new Type();
+			violonType.setName("GUITAR");
+			typeRepository.save(violonType);
+		}
+
 	}
 }

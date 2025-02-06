@@ -12,7 +12,10 @@ import com.group1.shoprider.repository.RepositoryType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ServiceInstrument {
@@ -41,7 +44,60 @@ public class ServiceInstrument {
         repositoryInstrument.deleteById(id);
     }
 
+    public InstrumentReponse updateInstrument(Long id, InstrumentRequest instrumentDTO) {
+        Optional<Instrument> optionalInstrument = repositoryInstrument.findById(id);
+        if (optionalInstrument.isEmpty()) {
+            throw new InstrumentNotFoundException(String.format("L'instrument avec l'ID %d n'existe pas", id));
+        }
+
+        Instrument instrument = optionalInstrument.get();
+
+        // Mise à jour des champs
+        instrument.setName(instrumentDTO.getName());
+        instrument.setDescription(instrumentDTO.getDescription());
+        instrument.setPrice(instrumentDTO.getPrice());
+        instrument.setQuantity(instrumentDTO.getQuantity());
+
+        // Vérification et mise à jour du type
+        Optional<Type> type = repositoryType.findByName(instrumentDTO.getType());
+        if (type.isEmpty()) {
+            throw new TypeNotFoundException(String.format("Le type: %s n'existe pas", instrumentDTO.getType()));
+        }
+        instrument.setType(type.get());
+
+        // Sauvegarde des modifications
+        Instrument updatedInstrument = repositoryInstrument.save(instrument);
+
+        return InstrumentReponse.convertToReponse(updatedInstrument);
     }
+    public List<InstrumentReponse> getAllInstruments() {
+        List<Instrument> instruments = repositoryInstrument.findAll();
+        return instruments.stream()
+                .map(InstrumentReponse::convertToReponse)
+                .collect(Collectors.toList());
+    }
+    public Map<String, List<InstrumentReponse>> getAllInstrumentsByType() {
+        List<Instrument> instruments = repositoryInstrument.findAll();
+        return instruments.stream()
+                .collect(Collectors.groupingBy(
+                        instrument -> instrument.getType().getName(),
+                        Collectors.mapping(InstrumentReponse::convertToReponse, Collectors.toList())
+                ));
+    }
+
+    public List<InstrumentReponse> getInstrumentsByType(String typeName) {
+        Optional<Type> type = repositoryType.findByName(typeName);
+        if (type.isEmpty()) {
+            throw new TypeNotFoundException(String.format("Le type: %s n'existe pas", typeName));
+        }
+
+        List<Instrument> instruments = repositoryInstrument.findByType(type.get());
+        return instruments.stream()
+                .map(InstrumentReponse::convertToReponse)
+                .collect(Collectors.toList());
+    }
+
+}
 
 
 

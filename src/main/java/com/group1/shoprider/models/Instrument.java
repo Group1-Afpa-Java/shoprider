@@ -30,6 +30,7 @@ public class Instrument {
     @Column(name = "price")
     private Double price;
 
+
     @ManyToOne
     @JoinColumn(name = "type_id")
     private Type type;
