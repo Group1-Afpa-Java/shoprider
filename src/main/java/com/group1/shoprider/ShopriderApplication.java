@@ -1,6 +1,8 @@
 package com.group1.shoprider;
 
+import com.group1.shoprider.models.Role;
 import com.group1.shoprider.models.Type;
+import com.group1.shoprider.repository.RepositoryRole;
 import com.group1.shoprider.repository.RepositoryType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -14,6 +16,7 @@ import java.util.Optional;
 public class ShopriderApplication implements CommandLineRunner {
 
 	private final RepositoryType typeRepository;
+	private final RepositoryRole repositoryRole;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShopriderApplication.class, args);
@@ -22,6 +25,16 @@ public class ShopriderApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
+		// create user roles
+		Role role1 = new Role();
+		role1.setName("CLIENT");
+		repositoryRole.save(role1);
+
+		Role role2 = new Role();
+		role1.setName("ADMIN");
+		repositoryRole.save(role2);
+
+		// create instrument types
 		Optional<Type> type1 = typeRepository.findByName("GUITAR");
 		if (type1.isEmpty()) {
 			Type guitarType = new Type();
