@@ -33,12 +33,12 @@ public class UserService {
     private final JWTService jwtService;
 
     public void register(RegisterRequest request) {
-        Optional<User> foundUser = userRepository.findByUsername(request.getUsername());
+        Optional<User> foundUser = userRepository.findByUsername(request.getUserName());
         if (foundUser.isPresent()) {
-            throw new UserAlreadyExistsException(String.format("Username: <%s> is not available.", request.username));
+            throw new UserAlreadyExistsException(String.format("Username: <%s> is not available.", request.userName));
         }
         User user = User.builder()
-                .username(request.username)
+                .username(request.userName)
                 .password(passwordEncoder.encode(request.password))
                 .role(roleRepository.findByName("CLIENT").get())
                 .build();
@@ -48,10 +48,10 @@ public class UserService {
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         try {
             final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    request.username,
+                    request.userName,
                     request.password
             );
-            User user = (User) userDetailsService.loadUserByUsername(request.getUsername());
+            User user = (User) userDetailsService.loadUserByUsername(request.getUserName());
             authenticationManager.authenticate(authenticationToken);
             final String token = jwtService.generateToken(user);
             return new AuthenticationResponse(token);

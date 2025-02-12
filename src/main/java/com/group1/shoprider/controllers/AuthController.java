@@ -39,7 +39,7 @@ public class AuthController {
             @RequestBody RegisterRequest request
     ) {
         userService.register(request);
-        log.info("REST request to register user {}", request.username);
+        log.info("REST request to register user {}", request.userName);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -54,7 +54,7 @@ public class AuthController {
     public ResponseEntity<AuthenticationResponse> loginUser(
             @RequestBody AuthenticationRequest request
     ) {
-        log.info("REST request to authenticate user {}", request.username);
+        log.info("REST request to authenticate user {}", request.userName);
         return ResponseEntity.ok(userService.authenticate(request));
     }
 

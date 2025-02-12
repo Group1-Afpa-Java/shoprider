@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class InstrumentReponse {
+    public Long id;
     public String name;
     public String description;
     public int quantity;
@@ -19,6 +20,7 @@ public class InstrumentReponse {
 
     public static InstrumentReponse convertToReponse(Instrument instrument) {
         InstrumentReponse dto = new InstrumentReponse();
+        dto.setId(instrument.getId());
         dto.setName(instrument.getName());
         dto.setDescription(instrument.getDescription());
         dto.setQuantity(instrument.getQuantity());

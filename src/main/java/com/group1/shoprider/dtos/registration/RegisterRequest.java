@@ -18,8 +18,8 @@ public class RegisterRequest {
     @NotBlank
     public String lastName;
     @NotBlank
-    public String username;
-    @Min(value = 8, message="Password must not be less than 8 characters.")
+    public String userName;
+    // @Min(value = 8, message="Password must not be less than 8 characters.")
     @NotBlank
     public String password;
     @Email
