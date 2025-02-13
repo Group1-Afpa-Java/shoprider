@@ -1,5 +1,7 @@
 package com.group1.shoprider.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +24,7 @@ public class Order {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @JsonIgnoreProperties("user")
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -32,6 +35,7 @@ public class Order {
     @Column(name = "total_price")
     private Double totalPrice;
 
+    @JsonIgnoreProperties("order")
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
