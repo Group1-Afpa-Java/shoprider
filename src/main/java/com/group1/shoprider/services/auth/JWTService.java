@@ -1,7 +1,6 @@
 package com.group1.shoprider.services.auth;
 
 import com.group1.shoprider.models.User;
-import com.group1.shoprider.repository.TokenBlacklistRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,6 +8,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -20,17 +20,13 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JWTService {
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
     @Value("${application.security.jwt.expiration-time}")
     private long jwtExpirationTime;
-    private final TokenBlacklistRepository tokenBlacklistRepository;
-
-    public JWTService(TokenBlacklistRepository tokenBlacklistRepository) {
-        this.tokenBlacklistRepository = tokenBlacklistRepository;
-    }
 
 
     /**
@@ -41,6 +37,11 @@ public class JWTService {
      */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    // Method to extract the 'user_id' claim from the token
+    public Long extractUserIdFromToken(String token) {
+        return extractClaim(token, claims -> claims.get("user_id", Long.class));
     }
 
 
@@ -100,6 +101,7 @@ public class JWTService {
                 .builder()
                 .setClaims(extraClaims)
                 .claim("roles", user.getAuthorities())
+                .claim("user_id", user.getId())
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
@@ -108,15 +110,13 @@ public class JWTService {
     }
 
     /**
-     * Validates whether a given JWT token is valid for the provided UserDetails.
+     * Validates whether a given JWT token is valid.
      *
      * @param token       The JWT token to validate
-     * @param userDetails The UserDetails associated with the token
      * @return true if the token is valid, false otherwise
      */
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    public boolean isTokenValid(String token) {
+        return (!isTokenExpired(token));
     }
 
     /**
@@ -163,5 +163,10 @@ public class JWTService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String getTokenString(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        return authHeader.substring(7);
     }
 }
