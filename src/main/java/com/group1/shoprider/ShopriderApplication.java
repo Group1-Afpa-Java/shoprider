@@ -19,63 +19,57 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @SpringBootApplication
 public class ShopriderApplication implements CommandLineRunner {
-	private final PasswordEncoder passwordEncoder;
+
 	private final RepositoryType typeRepository;
 	private final RepositoryRole repositoryRole;
-	private final RepositoryUser repositoryUser;
+	private final PasswordEncoder passwordEncoder;
+	private final RepositoryUser userRepository;
 	private final EntityManager entityManager;
+
 	public static void main(String[] args) {
 		SpringApplication.run(ShopriderApplication.class, args);
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public void run(String... args) throws Exception {
 
 		// create user roles
-		Role roleClient = new Role();
-		roleClient.setName("CLIENT");
-		repositoryRole.save(roleClient);
+		Role clientRole = new Role();
+		clientRole.setName("CLIENT");
+		repositoryRole.save(clientRole);
 
-		Role roleAdmin = new Role();
-		roleAdmin.setName("ADMIN");
-		repositoryRole.save(roleAdmin);
+		Role adminRole = new Role();
+		adminRole.setName("ADMIN");
+		repositoryRole.save(adminRole);
 
-		Role roleSuperAdmin = new Role();
-		roleSuperAdmin.setName("SUPERADMIN");
-		repositoryRole.save(roleSuperAdmin);
-
-
-		User clien = new User();
-		clien.setFirstName("client");
-		clien.setLastName("sterk");
-		clien.setEmail("bidonne@gmail.com");
-		clien.setUsername("client59");
-		clien.setPassword(passwordEncoder.encode("client69"));
-		clien.setAddress("50 rue de la rue");
-		clien.setRole(entityManager.merge(roleClient));
-		repositoryUser.save(clien);
+		Role superAdminRole = new Role();
+		superAdminRole.setName("SUPER-ADMIN");
+		repositoryRole.save(superAdminRole);
 
 
-		User admin = new User();
-		admin.setFirstName("adminnn");
-		admin.setLastName("stark");
-		admin.setEmail("bidon@gmail.com");
-		admin.setUsername("admin59");
-		admin.setPassword(passwordEncoder.encode("admin69"));
-		admin.setAddress("59 rue de la rue");
-		admin.setRole(entityManager.merge(roleAdmin));
-		repositoryUser.save(admin);
+		// create Admin and Super-admin Users
+		User admin = User.builder()
+				.firstName("James")
+				.lastName("Noells")
+				.username("jamesnoells")
+				.password(passwordEncoder.encode("adminpassword"))
+				.email("jamesnoells@gmail.com")
+				.address("1 Rue Luxembourg, 5900 Lille")
+				.role(entityManager.merge(adminRole))
+				.build();
+		userRepository.save(admin);
 
-		User superAdmin = new User();
-		superAdmin.setFirstName("superadminn");
-		superAdmin.setLastName("stark");
-		superAdmin.setEmail("bigdon@gmail.com");
-		superAdmin.setUsername("superAdmin59");
-		superAdmin.setPassword(passwordEncoder.encode("superadmin69"));
-		superAdmin.setAddress("69 rue de la rue");
-		superAdmin.setRole(entityManager.merge(roleSuperAdmin));
-		repositoryUser.save(superAdmin);
+		User superAdmin = User.builder()
+				.firstName("Kira")
+				.lastName("Brooks")
+				.username("kirabrooks")
+				.password(passwordEncoder.encode("superadminpassword"))
+				.email("kirabrooks@gmail.com")
+				.address("49 Rue Edouard, 59200 Tourcoing")
+				.role(entityManager.merge(superAdminRole))
+				.build();
+		userRepository.save(superAdmin);
 
 		// create instrument types
 		Optional<Type> type1 = typeRepository.findByName("GUITAR");

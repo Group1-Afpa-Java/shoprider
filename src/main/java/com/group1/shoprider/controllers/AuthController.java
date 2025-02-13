@@ -3,10 +3,12 @@ package com.group1.shoprider.controllers;
 import com.group1.shoprider.dtos.registration.AuthenticationRequest;
 import com.group1.shoprider.dtos.registration.AuthenticationResponse;
 import com.group1.shoprider.dtos.registration.RegisterRequest;
+import com.group1.shoprider.dtos.user.UserResponseDTO;
 import com.group1.shoprider.services.UserService;
 import com.group1.shoprider.services.auth.JWTService;
 import com.group1.shoprider.services.auth.TokenBlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/shoprider/api/v1/auth")
+@RequestMapping("/auth")
 @Slf4j
 public class AuthController {
 
@@ -35,12 +37,14 @@ public class AuthController {
      * @author Fethi Benseddik
      */
     @PostMapping("/register")
-    public ResponseEntity<Void> register(
+    public ResponseEntity<UserResponseDTO> register(
+            @Valid
             @RequestBody RegisterRequest request
     ) {
-        userService.register(request);
-        log.info("REST request to register user {}", request.userName);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        UserResponseDTO response = new UserResponseDTO();
+        response = UserResponseDTO.toUserResponseDTO(userService.register(request));
+        log.info("REST request to register user {}", request.getUserName());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -52,9 +56,10 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> loginUser(
+            @Valid
             @RequestBody AuthenticationRequest request
     ) {
-        log.info("REST request to authenticate user {}", request.userName);
+        log.info("REST request to authenticate user {}", request.getUserName());
         return ResponseEntity.ok(userService.authenticate(request));
     }
 

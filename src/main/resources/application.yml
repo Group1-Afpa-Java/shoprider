@@ -13,6 +13,8 @@ spring:
       ddl-auto: create
 server:
   port: 8080
+  servlet:
+    context-path: /shoprider/api/v1
 application:
   security:
     cors:
