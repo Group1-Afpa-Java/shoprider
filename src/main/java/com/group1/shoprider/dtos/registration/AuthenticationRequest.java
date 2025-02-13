@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 public class AuthenticationRequest {
     @NotBlank
-    public String username;
+    public String userName;
     @NotBlank
     public String password;
 }

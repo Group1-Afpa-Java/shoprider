@@ -11,4 +11,5 @@ public interface RepositoryOrder extends JpaRepository<Order, Long> {
 
     Optional<Order> findByUser_Username(String username);
 
+    List<Order> findByUserId(Long id);
 }

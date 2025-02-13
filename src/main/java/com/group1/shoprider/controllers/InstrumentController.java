@@ -5,6 +5,7 @@ import com.group1.shoprider.dtos.instrument.InstrumentReponse;
 import com.group1.shoprider.dtos.instrument.InstrumentRequest;
 import com.group1.shoprider.models.Instrument;
 import com.group1.shoprider.services.ServiceInstrument;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,15 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/instrument")
+@RequestMapping("/shoprider/api/v1/instrument")
 public class InstrumentController {
 
     @Autowired
     private ServiceInstrument serviceInstrument;
 
+
     @PostMapping("/add")
-    public ResponseEntity<InstrumentReponse> addInstrument(@RequestBody InstrumentRequest instrumentDTO){
+    public ResponseEntity<InstrumentReponse> addInstrument(@RequestBody @Valid InstrumentRequest instrumentDTO){
         InstrumentReponse reponseDTO = serviceInstrument.addInstrument(instrumentDTO);
         return new ResponseEntity<>(reponseDTO, HttpStatus.CREATED);
     }

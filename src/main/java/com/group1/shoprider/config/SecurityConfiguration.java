@@ -20,8 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration {
 
     private static final String[] AUTH_WHITELIST = {
-            "/shoprider/api/v1/auth/register",
-            "/shoprider/api/v1/auth/login"
+            "/auth/register",
+            "/auth/login"
     };
 
     private final JWTAuthFilter jwtAuthFilter;
