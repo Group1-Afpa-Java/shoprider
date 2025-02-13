@@ -37,4 +37,11 @@ public class OrderController {
         List<OrderResult> orderHistory = serviceOrder.getOrderHistoryForCurrentUser();
         return ResponseEntity.ok(orderHistory);
     }
+
+    // @Secured({"ROLE_ADMIN", "ROLE_SUPERADMIN"})
+    @GetMapping("/history_admin")
+    public ResponseEntity<List<Order>> getHistoriqueCommandes() {
+        List<Order> orders = serviceOrder.getAllOrders();
+        return ResponseEntity.ok(orders);
+    }
 }

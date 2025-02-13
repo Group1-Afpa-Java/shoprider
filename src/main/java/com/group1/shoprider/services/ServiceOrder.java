@@ -112,4 +112,9 @@ public class ServiceOrder {
                 .map(this::generateOrderResult) // Utiliser la méthode existante pour la conversion
                 .toList();
     }
+
+    // Méthode pour récupérer toutes les commandes
+    public List<Order> getAllOrders() {
+        return repositoryOrder.findAll();
+    }
 }
