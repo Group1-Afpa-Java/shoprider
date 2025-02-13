@@ -2,12 +2,16 @@ package com.group1.shoprider.services;
 
 import com.group1.shoprider.dtos.role.RoleRequestDto;
 import com.group1.shoprider.dtos.role.RoleResponseDto;
+import com.group1.shoprider.exceptions.RoleAlreadyExistsException;
+import com.group1.shoprider.exceptions.RoleNameAlreadyExistsException;
+import com.group1.shoprider.exceptions.RoleNotFoundException;
 import com.group1.shoprider.models.Role;
 import com.group1.shoprider.repository.RepositoryRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,10 +20,16 @@ public class RoleService {
     private final RepositoryRole repositoryRole;
 
     public RoleResponseDto addRole(RoleRequestDto roleRequestDto){
+        Optional<Role> foundRole = repositoryRole.findByName(roleRequestDto.getName());
+        if(foundRole.isPresent()) {
+            throw new RoleAlreadyExistsException(String.format(
+                    "Role with name: %s already exists", roleRequestDto.getName()
+            ));
+        }
         Role role = new Role();
         role.setName(roleRequestDto.getName());
-        Role savedRole = repositoryRole.save(role);
-        return new RoleResponseDto(savedRole.getId(), savedRole.getName());
+        repositoryRole.save(role);
+        return new RoleResponseDto(role.getId(), role.getName());
     }
     public List<RoleResponseDto> getAllRoles() {
         List<Role> roles = repositoryRole.findAll();
@@ -34,7 +44,12 @@ public class RoleService {
     }
     public RoleResponseDto updateRole(Long id,RoleRequestDto roleRequestDto){
         Role role = repositoryRole.findById(id)  // Find existing role
-                .orElseThrow(() -> new RuntimeException("Role not found with id: " + id));  // Handle not found
+                .orElseThrow(() -> new RoleNotFoundException("Role not found with id: " + id));
+        // Handle not found
+        Role role1 = repositoryRole.findByName(roleRequestDto.getName())
+                .orElseThrow(() -> new RoleNameAlreadyExistsException(
+                        "Role Name: <" + roleRequestDto.getName() + "> already exists."
+                ));
         role.setName(roleRequestDto.getName());  // Update role name
         Role updatedRole = repositoryRole.save(role);  // Save updated role
         return new RoleResponseDto(updatedRole.getId(), updatedRole.getName());  // Convert to response DTO
