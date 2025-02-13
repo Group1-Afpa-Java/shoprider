@@ -1,5 +1,6 @@
 package com.group1.shoprider.models;
 
+import com.group1.shoprider.enums.PaymentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -35,7 +36,7 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Payment status;
+    private PaymentStatus status;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
