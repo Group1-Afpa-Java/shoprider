@@ -6,6 +6,7 @@ import com.group1.shoprider.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,8 @@ public class UserController {
     private final UserService userService;
 
 
+    @Secured({"ADMIN", "SUPER_ADMIN"})
     @GetMapping("")
-    @Secured({"ADMIN", "SUPER-ADMIN"})
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         return ResponseEntity.ok().body(userService.getAllUsers());
     }
@@ -35,10 +36,21 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Secured({"ADMIN", "SUPER_ADMIN"})
     @DeleteMapping("/{userID}")
-    @Secured("SUPER-ADMIN")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userID) {
-        userService.deleteUser(userID);
+    public ResponseEntity<Void> deleteUser(HttpServletRequest request, @PathVariable Long userID) {
+        userService.deleteUser(request, userID);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/user-details")
+    public ResponseEntity<UserResponseDTO> getUserDetails(HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDetails(request));
+    }
+
+    @Secured({"ADMIN", "SUPER_ADMIN"})
+    @GetMapping("/{userID}")
+    public ResponseEntity<UserResponseDTO> getSpecificUserDetails(@PathVariable Long userID) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getSpecificUserDetails(userID));
     }
 }

@@ -1,6 +1,7 @@
 package com.group1.shoprider.dtos.user;
 
 import com.group1.shoprider.models.User;
+import jakarta.validation.constraints.Null;
 import lombok.*;
 
 import java.util.ArrayList;

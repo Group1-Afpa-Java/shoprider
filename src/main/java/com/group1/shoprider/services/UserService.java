@@ -5,7 +5,9 @@ import com.group1.shoprider.dtos.registration.AuthenticationResponse;
 import com.group1.shoprider.dtos.registration.RegisterRequest;
 import com.group1.shoprider.dtos.user.UserRequestDTO;
 import com.group1.shoprider.dtos.user.UserResponseDTO;
+import com.group1.shoprider.enums.UserRoles;
 import com.group1.shoprider.exceptions.*;
+import com.group1.shoprider.models.Role;
 import com.group1.shoprider.models.User;
 import com.group1.shoprider.repository.RepositoryRole;
 import com.group1.shoprider.repository.RepositoryUser;
@@ -17,13 +19,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 
 @Service
@@ -49,7 +54,7 @@ public class UserService {
                 .email(request.getEmail())
                 .address(request.getAddress())
                 .password(passwordEncoder.encode(request.password))
-                .role(roleRepository.findByName("CLIENT").get())
+                .role(roleRepository.findByName(UserRoles.CLIENT.name()).get())
                 .build();
         return userRepository.save(user);
     }
@@ -68,6 +73,32 @@ public class UserService {
             throw new InvalidUsernameOrPasswordException("Invalid username/password supplied");
         }
     }
+
+    public UserResponseDTO getUserDetails(HttpServletRequest request) {
+        String token = jwtService.getTokenString(request);
+        User userMakingRequest = getUserByID(jwtService.extractUserIdFromToken(token));
+        return UserResponseDTO.builder()
+                .id(userMakingRequest.getId())
+                .username(userMakingRequest.getUsername())
+                .firstName(userMakingRequest.getFirstName())
+                .lastName(userMakingRequest.getLastName())
+                .email(userMakingRequest.getEmail())
+                .address(userMakingRequest.getAddress())
+                .build();
+    }
+
+    public UserResponseDTO getSpecificUserDetails(Long userID) {
+        User foundUser = getUserByID(userID);
+        return UserResponseDTO.builder()
+                .id(foundUser.getId())
+                .username(foundUser.getUsername())
+                .firstName(foundUser.getFirstName())
+                .lastName(foundUser.getLastName())
+                .email(foundUser.getEmail())
+                .address(foundUser.getAddress())
+                .build();
+    }
+
 
     public User getUserByID(Long userID) {
         Optional<User> foundUser = userRepository.findById(userID);
@@ -95,19 +126,33 @@ public class UserService {
         return false;
     }
 
+    public String getUserRoleFromToken(HttpServletRequest request) {
+        String token = jwtService.getTokenString(request);
+        User user = getUserByID(jwtService.extractUserIdFromToken(token));
+        return user.getRole().getAuthority();
+    }
+
     public User findUserMakingRequest(HttpServletRequest request) {
         // find user who is making the request (can be user, admin or super-admin)
         Long user_id = jwtService.extractUserIdFromToken(jwtService.getTokenString(request));
         return getUserByID(user_id);
     }
 
-
     public List<UserResponseDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         return UserResponseDTO.toUserResponseDTOList(users);
     }
 
-    public void deleteUser(Long userID) {
+    public void deleteUser(HttpServletRequest request, Long userID) {
+        User userToBeDeleted = getUserByID(userID);
+        String userMakingRequestRole = getUserRoleFromToken(request);
+        if (userMakingRequestRole.equals(UserRoles.ADMIN.name())
+                && userToBeDeleted.getRole().getName().equals(UserRoles.SUPER_ADMIN.name()
+        )) {
+            throw new ActionNotPermitted(String.format(
+                    "Role <%s> cannot delete User with role <%s>", userMakingRequestRole, UserRoles.SUPER_ADMIN.name()
+            ));
+        }
         User foundUser = getUserByID(userID);
         userRepository.deleteById(userID);
     }
