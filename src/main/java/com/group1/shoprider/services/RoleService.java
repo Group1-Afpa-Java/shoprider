@@ -46,10 +46,11 @@ public class RoleService {
         Role role = repositoryRole.findById(id)  // Find existing role
                 .orElseThrow(() -> new RoleNotFoundException("Role not found with id: " + id));
         // Handle not found
-        Role role1 = repositoryRole.findByName(roleRequestDto.getName())
-                .orElseThrow(() -> new RoleNameAlreadyExistsException(
-                        "Role Name: <" + roleRequestDto.getName() + "> already exists."
-                ));
+        Optional<Role> role1 = repositoryRole.findByName(roleRequestDto.getName());
+        if(role1.isPresent()){
+            throw new RoleAlreadyExistsException("Role Name: <" + roleRequestDto.getName() + "> Already Exists.");
+        }
+
         role.setName(roleRequestDto.getName());  // Update role name
         Role updatedRole = repositoryRole.save(role);  // Save updated role
         return new RoleResponseDto(updatedRole.getId(), updatedRole.getName());  // Convert to response DTO
