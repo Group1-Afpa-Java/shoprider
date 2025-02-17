@@ -1,5 +1,7 @@
 package com.group1.shoprider.controllers;
 
+import com.group1.shoprider.dtos.role.RoleRequestDto;
+import com.group1.shoprider.dtos.user.UserDetailsDTO;
 import com.group1.shoprider.dtos.user.UserRequestDTO;
 import com.group1.shoprider.dtos.user.UserResponseDTO;
 import com.group1.shoprider.services.UserService;
@@ -22,7 +24,7 @@ public class UserController {
 
     @Secured({"ADMIN", "SUPER_ADMIN"})
     @GetMapping("")
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+    public ResponseEntity<List<UserDetailsDTO>> getAllUsers() {
         return ResponseEntity.ok().body(userService.getAllUsers());
     }
 
@@ -44,13 +46,19 @@ public class UserController {
     }
 
     @GetMapping("/user-details")
-    public ResponseEntity<UserResponseDTO> getUserDetails(HttpServletRequest request) {
+    public ResponseEntity<UserDetailsDTO> getUserDetails(HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDetails(request));
     }
 
     @Secured({"ADMIN", "SUPER_ADMIN"})
     @GetMapping("/{userID}")
-    public ResponseEntity<UserResponseDTO> getSpecificUserDetails(@PathVariable Long userID) {
+    public ResponseEntity<UserDetailsDTO> getSpecificUserDetails(@PathVariable Long userID) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getSpecificUserDetails(userID));
+    }
+
+    @Secured("SUPER_ADMIN")
+    @PatchMapping("/update-role/{userID}")
+    public ResponseEntity<UserDetailsDTO> updateUserRole(@Valid @RequestBody RoleRequestDto roleData, @PathVariable Long userID) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserRole(roleData, userID));
     }
 }
