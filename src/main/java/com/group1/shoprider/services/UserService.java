@@ -3,6 +3,8 @@ package com.group1.shoprider.services;
 import com.group1.shoprider.dtos.registration.AuthenticationRequest;
 import com.group1.shoprider.dtos.registration.AuthenticationResponse;
 import com.group1.shoprider.dtos.registration.RegisterRequest;
+import com.group1.shoprider.dtos.role.RoleRequestDto;
+import com.group1.shoprider.dtos.user.UserDetailsDTO;
 import com.group1.shoprider.dtos.user.UserRequestDTO;
 import com.group1.shoprider.dtos.user.UserResponseDTO;
 import com.group1.shoprider.enums.UserRoles;
@@ -37,6 +39,7 @@ import java.util.stream.Stream;
 public class UserService {
     private final RepositoryRole roleRepository;
     private final RepositoryUser userRepository;
+    private final RoleService roleService;
     private final UserDetailsServiceImpl userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -74,12 +77,13 @@ public class UserService {
         }
     }
 
-    public UserResponseDTO getUserDetails(HttpServletRequest request) {
+    public UserDetailsDTO getUserDetails(HttpServletRequest request) {
         String token = jwtService.getTokenString(request);
         User userMakingRequest = getUserByID(jwtService.extractUserIdFromToken(token));
-        return UserResponseDTO.builder()
+        return UserDetailsDTO.builder()
                 .id(userMakingRequest.getId())
                 .username(userMakingRequest.getUsername())
+                .role(userMakingRequest.getRole().getName())
                 .firstName(userMakingRequest.getFirstName())
                 .lastName(userMakingRequest.getLastName())
                 .email(userMakingRequest.getEmail())
@@ -87,11 +91,12 @@ public class UserService {
                 .build();
     }
 
-    public UserResponseDTO getSpecificUserDetails(Long userID) {
+    public UserDetailsDTO getSpecificUserDetails(Long userID) {
         User foundUser = getUserByID(userID);
-        return UserResponseDTO.builder()
+        return UserDetailsDTO.builder()
                 .id(foundUser.getId())
                 .username(foundUser.getUsername())
+                .role(foundUser.getRole().getName())
                 .firstName(foundUser.getFirstName())
                 .lastName(foundUser.getLastName())
                 .email(foundUser.getEmail())
@@ -138,9 +143,9 @@ public class UserService {
         return getUserByID(user_id);
     }
 
-    public List<UserResponseDTO> getAllUsers() {
+    public List<UserDetailsDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
-        return UserResponseDTO.toUserResponseDTOList(users);
+        return UserDetailsDTO.toUserDetailsDTOList(users);
     }
 
     public void deleteUser(HttpServletRequest request, Long userID) {
@@ -153,7 +158,6 @@ public class UserService {
                     "Role <%s> cannot delete User with role <%s>", userMakingRequestRole, UserRoles.SUPER_ADMIN.name()
             ));
         }
-        User foundUser = getUserByID(userID);
         userRepository.deleteById(userID);
     }
 
@@ -203,5 +207,19 @@ public class UserService {
         return UserResponseDTO.toUserResponseDTO(userRepository.save(userToUpdate));
     }
 
-
+    public UserDetailsDTO updateUserRole(RoleRequestDto roleData, Long userID) {
+        User foundUser = getUserByID(userID);
+        Role foundRole = roleService.getRoleByName(roleData.getName());
+        foundUser.setRole(foundRole);
+        userRepository.save(foundUser);
+        return UserDetailsDTO.builder()
+                .id(foundUser.getId())
+                .firstName(foundUser.getFirstName())
+                .lastName(foundUser.getLastName())
+                .username(foundUser.getUsername())
+                .role(foundRole.getName())
+                .email(foundUser.getEmail())
+                .address(foundUser.getAddress())
+                .build();
+    }
 }
