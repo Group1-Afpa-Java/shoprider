@@ -1,5 +1,6 @@
 package com.group1.shoprider;
 
+import com.group1.shoprider.enums.UserRoles;
 import com.group1.shoprider.models.Role;
 import com.group1.shoprider.models.Type;
 import com.group1.shoprider.models.User;
@@ -36,15 +37,15 @@ public class ShopriderApplication implements CommandLineRunner {
 
 		// create user roles
 		Role clientRole = new Role();
-		clientRole.setName("CLIENT");
+		clientRole.setName(UserRoles.CLIENT.name());
 		repositoryRole.save(clientRole);
 
 		Role adminRole = new Role();
-		adminRole.setName("ADMIN");
+		adminRole.setName(UserRoles.ADMIN.name());
 		repositoryRole.save(adminRole);
 
 		Role superAdminRole = new Role();
-		superAdminRole.setName("SUPER-ADMIN");
+		superAdminRole.setName(UserRoles.SUPER_ADMIN.name());
 		repositoryRole.save(superAdminRole);
 
 

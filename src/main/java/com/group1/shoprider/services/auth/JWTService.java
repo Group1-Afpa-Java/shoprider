@@ -10,10 +10,10 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,6 @@ public class JWTService {
     public Long extractUserIdFromToken(String token) {
         return extractClaim(token, claims -> claims.get("user_id", Long.class));
     }
-
 
     /**
      * Extracts a specific claim from the provided JWT token using a claims resolver.

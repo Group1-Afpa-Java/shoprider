@@ -61,4 +61,12 @@ public class RoleService {
         }
         repositoryRole.deleteById(id);  // Delete role by ID
     }
+
+    public Role getRoleByName(String name) {
+        Optional<Role> role = repositoryRole.findByName(name);
+        if (role.isEmpty()) {
+            throw new RoleNotFoundException(String.format("Role with name: %s was not found", name));
+        }
+        return role.get();
+    }
 }
