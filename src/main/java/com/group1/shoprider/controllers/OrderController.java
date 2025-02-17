@@ -5,6 +5,7 @@ import com.group1.shoprider.dtos.order.OrderResult;
 import com.group1.shoprider.dtos.orderitem.OrderItemRequest;
 import com.group1.shoprider.models.Order;
 import com.group1.shoprider.services.ServiceOrder;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,8 @@ public class OrderController {
 
     @Secured("CLIENT")
     @PostMapping("/passer")
-    public ResponseEntity<OrderResult> passerCommande(@RequestBody List<OrderItemRequest> orderRequest) {
+    public ResponseEntity<OrderResult> passerCommande(@Valid @RequestBody List<OrderItemRequest> orderRequest) {
+        System.out.println("hihi");
         try {
             // Appeler la méthode passerCommande et obtenir le ticket de caisse
             OrderResult orderResult = serviceOrder.passerCommande(orderRequest);

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,22 +23,27 @@ public class InstrumentController {
     private ServiceInstrument serviceInstrument;
 
 
+    @Secured({"ADMIN", "SUPER_ADMIN"})
     @PostMapping("/add")
     public ResponseEntity<InstrumentReponse> addInstrument(@RequestBody @Valid InstrumentRequest instrumentDTO){
         InstrumentReponse reponseDTO = serviceInstrument.addInstrument(instrumentDTO);
         return new ResponseEntity<>(reponseDTO, HttpStatus.CREATED);
     }
 
+    @Secured({"ADMIN", "SUPER_ADMIN"})
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Instrument> deleteInstrument(@PathVariable Long id) {
         serviceInstrument.deleteInstrument(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Secured({"ADMIN", "SUPER_ADMIN"})
     @PutMapping("update/{id}")
     public ResponseEntity<InstrumentReponse> updateInstrument(@PathVariable Long id, @RequestBody InstrumentRequest instrumentDTO) {
         InstrumentReponse reponseDTO = serviceInstrument.updateInstrument(id, instrumentDTO);
         return new ResponseEntity<>(reponseDTO, HttpStatus.OK);
     }
+
 
     @GetMapping("/all")
     public ResponseEntity<List<InstrumentReponse>> getAllInstruments() {

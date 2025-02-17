@@ -72,24 +72,24 @@ public class ServiceOrder {
             totalPrice += instrument.getPrice() * item.getQuantity();
         }
 
-        // Générer automatiquement le paiement pour l'ordre
-        try {
-            PaymentRequestDto paymentRequest = new PaymentRequestDto();
-            paymentRequest.setAmount(new BigDecimal(totalPrice)); // Total de la commande
-            paymentRequest.setCurrency("eur"); // Exemple : Devrait être dynamique si multi-devises
-            paymentRequest.setPaymentMethod("card"); // Type de paiement à configurer selon les supports définis
-            paymentRequest.setUserId(user.getId().toString()); // Identifier l'utilisateur dans le paiement
-
-            // Appeler le service pour démarrer le paiement
-            String clientSecret = paymentService.createPayment(paymentRequest);
-
-            // Persister le lien entre la commande et le paiement (optionnel selon besoin)
-            // Ajouter un champ `orderId` dans Payment pour lier une commande à un paiement.
-
-            System.out.println("Paiement créé avec Stripe, Client Secret : " + clientSecret);
-        } catch (Exception e) {
-            throw new IllegalStateException("Erreur lors de la création du paiement : " + e.getMessage());
-        }
+//        // Générer automatiquement le paiement pour l'ordre
+//        try {
+//            PaymentRequestDto paymentRequest = new PaymentRequestDto();
+//            paymentRequest.setAmount(new BigDecimal(totalPrice)); // Total de la commande
+//            paymentRequest.setCurrency("eur"); // Exemple : Devrait être dynamique si multi-devises
+//            paymentRequest.setPaymentMethod("card"); // Type de paiement à configurer selon les supports définis
+//            paymentRequest.setUserId(user.getId().toString()); // Identifier l'utilisateur dans le paiement
+//
+//            // Appeler le service pour démarrer le paiement
+//            String clientSecret = paymentService.createPayment(paymentRequest);
+//
+//            // Persister le lien entre la commande et le paiement (optionnel selon besoin)
+//            // Ajouter un champ `orderId` dans Payment pour lier une commande à un paiement.
+//
+//            System.out.println("Paiement créé avec Stripe, Client Secret : " + clientSecret);
+//        } catch (Exception e) {
+//            throw new IllegalStateException("Erreur lors de la création du paiement : " + e.getMessage());
+//        }
 
         order.setTotalPrice(totalPrice);
         repositoryOrder.save(order); // Sauvegarder la commande
