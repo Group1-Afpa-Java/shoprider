@@ -22,6 +22,9 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true) // Ajoutez ceci si l'attribut doit être unique
+    private String paymentIntentId;
+
     @Column(nullable = false)
     private BigDecimal amount;
 
@@ -37,6 +40,9 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus status;
+
+    @Column(name = "order_id")
+    private Long orderId;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

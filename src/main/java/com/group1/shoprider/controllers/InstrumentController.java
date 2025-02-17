@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/shoprider/api/v1/instrument")
+@RequestMapping("/instruments")
 public class InstrumentController {
 
     @Autowired

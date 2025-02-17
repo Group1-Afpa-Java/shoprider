@@ -4,7 +4,9 @@ import com.group1.shoprider.dtos.instrument.DTOInstrument;
 import com.group1.shoprider.dtos.order.OrderRequest;
 import com.group1.shoprider.dtos.order.OrderResult;
 import com.group1.shoprider.dtos.orderitem.OrderItemRequest;
+import com.group1.shoprider.dtos.payment.PaymentRequestDto;
 import com.group1.shoprider.exceptions.InstrumentNotFoundException;
+import com.group1.shoprider.services.PaymentService;
 import com.group1.shoprider.models.Instrument;
 import com.group1.shoprider.models.Order;
 import com.group1.shoprider.models.OrderItem;
@@ -17,14 +19,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ServiceOrder {
 
+    private final PaymentService paymentService;
     private final RepositoryInstrument repositoryInstrument;
     private final RepositoryOrder repositoryOrder;
     private final RepositoryUser repositoryUser;
@@ -64,6 +70,25 @@ public class ServiceOrder {
             order.getItems().add(orderItem);
 
             totalPrice += instrument.getPrice() * item.getQuantity();
+        }
+
+        // Générer automatiquement le paiement pour l'ordre
+        try {
+            PaymentRequestDto paymentRequest = new PaymentRequestDto();
+            paymentRequest.setAmount(new BigDecimal(totalPrice)); // Total de la commande
+            paymentRequest.setCurrency("eur"); // Exemple : Devrait être dynamique si multi-devises
+            paymentRequest.setPaymentMethod("card"); // Type de paiement à configurer selon les supports définis
+            paymentRequest.setUserId(user.getId().toString()); // Identifier l'utilisateur dans le paiement
+
+            // Appeler le service pour démarrer le paiement
+            String clientSecret = paymentService.createPayment(paymentRequest);
+
+            // Persister le lien entre la commande et le paiement (optionnel selon besoin)
+            // Ajouter un champ `orderId` dans Payment pour lier une commande à un paiement.
+
+            System.out.println("Paiement créé avec Stripe, Client Secret : " + clientSecret);
+        } catch (Exception e) {
+            throw new IllegalStateException("Erreur lors de la création du paiement : " + e.getMessage());
         }
 
         order.setTotalPrice(totalPrice);
@@ -116,5 +141,23 @@ public class ServiceOrder {
     // Méthode pour récupérer toutes les commandes
     public List<Order> getAllOrders() {
         return repositoryOrder.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map.Entry<String, Long>> getTopVentesParCategorie() {
+        List<Order> allOrders = repositoryOrder.findAll();
+
+        // Calculer les ventes par catégorie
+        Map<String, Long> ventesParCategorie = allOrders.stream()
+                .flatMap(order -> order.getItems().stream()) // Tous les articles de chaque commande
+                .collect(Collectors.groupingBy(
+                        orderItem -> orderItem.getInstrument().getType().getName(), // Regrouper par catégorie
+                        Collectors.summingLong(OrderItem::getQuantity) // Compter les quantités vendues
+                ));
+
+        // Trier les catégories par nombre de ventes (descendant)
+        return ventesParCategorie.entrySet().stream()
+                .sorted((entry1, entry2) -> Long.compare(entry2.getValue(), entry1.getValue()))
+                .toList();
     }
 }

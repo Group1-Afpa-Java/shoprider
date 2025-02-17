@@ -12,10 +12,11 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/shoprider/api/v1/commandes")
+@RequestMapping("/commandes")
 public class OrderController {
 
     private final ServiceOrder serviceOrder;
@@ -38,10 +39,17 @@ public class OrderController {
         return ResponseEntity.ok(orderHistory);
     }
 
-    // @Secured({"ROLE_ADMIN", "ROLE_SUPERADMIN"})
+    @Secured({"ADMIN", "SUPER_ADMIN"})
     @GetMapping("/history_admin")
     public ResponseEntity<List<Order>> getHistoriqueCommandes() {
         List<Order> orders = serviceOrder.getAllOrders();
         return ResponseEntity.ok(orders);
+    }
+
+    @Secured({"ADMIN", "SUPER_ADMIN"})
+    @GetMapping("/top-ventes/categorie")
+    public ResponseEntity<List<Map.Entry<String, Long>>> getTopVentesParCategorie() {
+        List<Map.Entry<String, Long>> topVentes = serviceOrder.getTopVentesParCategorie();
+        return ResponseEntity.ok(topVentes);
     }
 }
