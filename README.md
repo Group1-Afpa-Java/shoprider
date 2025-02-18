@@ -1,0 +1,1 @@
+Postman Link for Testing all the Routes: [Link](https://galactic-shuttle-482127.postman.co/workspace/ShopRider-Enterprise~293915d8-8deb-42dd-9eac-d3e4c0d68275/collection/15304166-69bc8118-7ece-46f5-bf02-7b7364e2d4cc?action=share&creator=15304166&active-environment=15304166-c89718a1-ebff-4b1e-8222-daa15ce4e38d)
