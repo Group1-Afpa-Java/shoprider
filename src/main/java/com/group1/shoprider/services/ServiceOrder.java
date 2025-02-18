@@ -4,7 +4,9 @@ import com.group1.shoprider.dtos.instrument.DTOInstrument;
 import com.group1.shoprider.dtos.order.OrderRequest;
 import com.group1.shoprider.dtos.order.OrderResult;
 import com.group1.shoprider.dtos.orderitem.OrderItemRequest;
+import com.group1.shoprider.dtos.payment.PaymentRequestDto;
 import com.group1.shoprider.exceptions.InstrumentNotFoundException;
+import com.group1.shoprider.services.PaymentService;
 import com.group1.shoprider.models.Instrument;
 import com.group1.shoprider.models.Order;
 import com.group1.shoprider.models.OrderItem;
@@ -12,25 +14,53 @@ import com.group1.shoprider.models.User;
 import com.group1.shoprider.repository.RepositoryInstrument;
 import com.group1.shoprider.repository.RepositoryOrder;
 import com.group1.shoprider.repository.RepositoryUser;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ServiceOrder {
 
+    @Autowired
+    private final PaymentService paymentService;
+    @Autowired
     private final RepositoryInstrument repositoryInstrument;
+    @Autowired
     private final RepositoryOrder repositoryOrder;
+    @Autowired
     private final RepositoryUser repositoryUser;
 
+
+    public ServiceOrder(
+            PaymentService paymentService,
+            RepositoryInstrument repositoryInstrument,
+            RepositoryOrder repositoryOrder,
+            RepositoryUser repositoryUser,
+            @Value("${stripe.api.key}") String apiKey
+    ) {
+        this.paymentService = paymentService;
+        this.repositoryInstrument = repositoryInstrument;
+        this.repositoryOrder = repositoryOrder;
+        this.repositoryUser = repositoryUser;
+        Stripe.apiKey = apiKey;
+    }
+
     @Transactional
-    public OrderResult passerCommande(List<OrderItemRequest> orderRequest) {
+    public OrderResult passerCommande(List<OrderItemRequest> orderRequest) throws StripeException{
         // Récupérer l'utilisateur connecté
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = repositoryUser.findByUsername(username)
@@ -65,6 +95,23 @@ public class ServiceOrder {
 
             totalPrice += instrument.getPrice() * item.getQuantity();
         }
+
+        // Générer automatiquement le paiement pour l'ordre
+
+        PaymentRequestDto paymentRequest = new PaymentRequestDto();
+        paymentRequest.setAmount(new BigDecimal(totalPrice)); // Total de la commande
+        paymentRequest.setCurrency("eur"); // Exemple : Devrait être dynamique si multi-devises
+        paymentRequest.setPaymentMethod("card"); // Type de paiement à configurer selon les supports définis
+        paymentRequest.setUserId(user.getId().toString()); // Identifier l'utilisateur dans le paiement
+
+        // Appeler le service pour démarrer le paiement
+        String clientSecret = paymentService.createPayment(paymentRequest);
+
+        // Persister le lien entre la commande et le paiement (optionnel selon besoin)
+        // Ajouter un champ `orderId` dans Payment pour lier une commande à un paiement.
+
+        System.out.println("Paiement créé avec Stripe, Client Secret : " + clientSecret);
+
 
         order.setTotalPrice(totalPrice);
         repositoryOrder.save(order); // Sauvegarder la commande
@@ -116,5 +163,23 @@ public class ServiceOrder {
     // Méthode pour récupérer toutes les commandes
     public List<Order> getAllOrders() {
         return repositoryOrder.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map.Entry<String, Long>> getTopVentesParCategorie() {
+        List<Order> allOrders = repositoryOrder.findAll();
+
+        // Calculer les ventes par catégorie
+        Map<String, Long> ventesParCategorie = allOrders.stream()
+                .flatMap(order -> order.getItems().stream()) // Tous les articles de chaque commande
+                .collect(Collectors.groupingBy(
+                        orderItem -> orderItem.getInstrument().getType().getName(), // Regrouper par catégorie
+                        Collectors.summingLong(OrderItem::getQuantity) // Compter les quantités vendues
+                ));
+
+        // Trier les catégories par nombre de ventes (descendant)
+        return ventesParCategorie.entrySet().stream()
+                .sorted((entry1, entry2) -> Long.compare(entry2.getValue(), entry1.getValue()))
+                .toList();
     }
 }
