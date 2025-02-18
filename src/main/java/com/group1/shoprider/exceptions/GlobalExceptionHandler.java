@@ -1,6 +1,7 @@
 package com.group1.shoprider.exceptions;
 
 
+import com.stripe.exception.StripeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -53,6 +54,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RoleNameAlreadyExistsException.class)
     public ResponseEntity<String> handleRoleNameAlreadyExistsException(RoleNameAlreadyExistsException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(StripeException.class)
+    public ResponseEntity<String> handleIllegalStateException(StripeException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }

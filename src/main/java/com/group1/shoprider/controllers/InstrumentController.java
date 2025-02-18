@@ -23,7 +23,6 @@ public class InstrumentController {
     private ServiceInstrument serviceInstrument;
 
 
-    @Secured({"ADMIN", "SUPER_ADMIN"})
     @PostMapping("/add")
     public ResponseEntity<InstrumentReponse> addInstrument(@RequestBody @Valid InstrumentRequest instrumentDTO){
         InstrumentReponse reponseDTO = serviceInstrument.addInstrument(instrumentDTO);

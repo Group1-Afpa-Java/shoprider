@@ -5,6 +5,7 @@ import com.group1.shoprider.dtos.order.OrderResult;
 import com.group1.shoprider.dtos.orderitem.OrderItemRequest;
 import com.group1.shoprider.models.Order;
 import com.group1.shoprider.services.ServiceOrder;
+import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,17 +25,13 @@ public class OrderController {
 
     @Secured("CLIENT")
     @PostMapping("/passer")
-    public ResponseEntity<OrderResult> passerCommande(@Valid @RequestBody List<OrderItemRequest> orderRequest) {
-        System.out.println("hihi");
-        try {
-            // Appeler la méthode passerCommande et obtenir le ticket de caisse
-            OrderResult orderResult = serviceOrder.passerCommande(orderRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(orderResult);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    public ResponseEntity<OrderResult> passerCommande(@Valid @RequestBody List<OrderItemRequest> orderRequest) throws StripeException {
 
+        // Appeler la méthode passerCommande et obtenir le ticket de caisse
+        OrderResult orderResult = serviceOrder.passerCommande(orderRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderResult);
     }
+
     @GetMapping("/history")
     public ResponseEntity<List<OrderResult>> getOrderHistory() {
         List<OrderResult> orderHistory = serviceOrder.getOrderHistoryForCurrentUser();

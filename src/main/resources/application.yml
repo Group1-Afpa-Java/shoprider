@@ -26,4 +26,4 @@ application:
 
 stripe:
   api:
-    key: ${pk_test_51QtOdxJ0qEuC2gVUmYAeRNjedDqEr7Tr6Ugf1UeFAUlKWRFIK8hlLPDAebb09f43oZgA0NUE3U1QuM1mwzBGwlz6005mfJxeA8}
+    key: sk_test_51QtOdxJ0qEuC2gVUYXT1rSGyIcMPyJ9FjdsanOgISzsXJq3hRH25dKqXJcbSN571T582cThG7G5ni5ueLhLA2UdS00ij4xHSKL
