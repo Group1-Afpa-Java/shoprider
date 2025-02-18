@@ -1,13 +1,19 @@
 package com.group1.shoprider;
 
+import com.group1.shoprider.enums.UserRoles;
 import com.group1.shoprider.models.Role;
 import com.group1.shoprider.models.Type;
+import com.group1.shoprider.models.User;
 import com.group1.shoprider.repository.RepositoryRole;
 import com.group1.shoprider.repository.RepositoryType;
+import com.group1.shoprider.repository.RepositoryUser;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -17,22 +23,54 @@ public class ShopriderApplication implements CommandLineRunner {
 
 	private final RepositoryType typeRepository;
 	private final RepositoryRole repositoryRole;
+	private final PasswordEncoder passwordEncoder;
+	private final RepositoryUser userRepository;
+	private final EntityManager entityManager;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShopriderApplication.class, args);
 	}
 
 	@Override
+	@Transactional
 	public void run(String... args) throws Exception {
 
 		// create user roles
-		Role role1 = new Role();
-		role1.setName("CLIENT");
-		repositoryRole.save(role1);
+		Role clientRole = new Role();
+		clientRole.setName(UserRoles.CLIENT.name());
+		repositoryRole.save(clientRole);
 
-		Role role2 = new Role();
-		role1.setName("ADMIN");
-		repositoryRole.save(role2);
+		Role adminRole = new Role();
+		adminRole.setName(UserRoles.ADMIN.name());
+		repositoryRole.save(adminRole);
+
+		Role superAdminRole = new Role();
+		superAdminRole.setName(UserRoles.SUPER_ADMIN.name());
+		repositoryRole.save(superAdminRole);
+
+
+		// create Admin and Super-admin Users
+		User admin = User.builder()
+				.firstName("James")
+				.lastName("Noells")
+				.username("jamesnoells")
+				.password(passwordEncoder.encode("adminpassword"))
+				.email("jamesnoells@gmail.com")
+				.address("1 Rue Luxembourg, 5900 Lille")
+				.role(entityManager.merge(adminRole))
+				.build();
+		userRepository.save(admin);
+
+		User superAdmin = User.builder()
+				.firstName("Kira")
+				.lastName("Brooks")
+				.username("kirabrooks")
+				.password(passwordEncoder.encode("superadminpassword"))
+				.email("kirabrooks@gmail.com")
+				.address("49 Rue Edouard, 59200 Tourcoing")
+				.role(entityManager.merge(superAdminRole))
+				.build();
+		userRepository.save(superAdmin);
 
 		// create instrument types
 		Optional<Type> type1 = typeRepository.findByName("GUITAR");

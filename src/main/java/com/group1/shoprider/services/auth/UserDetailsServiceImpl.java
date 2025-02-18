@@ -1,5 +1,6 @@
 package com.group1.shoprider.services.auth;
 
+import com.group1.shoprider.exceptions.UserNotFoundException;
 import com.group1.shoprider.repository.RepositoryUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,4 +20,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 "User with name: %s was not found.", username
         )));
     }
+
+    public UserDetails loadUserByID(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(String.format(
+                "User with id: %d was not found.", id
+        )));    }
 }

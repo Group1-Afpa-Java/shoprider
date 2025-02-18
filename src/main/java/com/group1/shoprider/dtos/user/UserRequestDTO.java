@@ -1,4 +1,5 @@
-package com.group1.shoprider.dtos.registration;
+package com.group1.shoprider.dtos.user;
+
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
@@ -8,20 +9,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
 @NoArgsConstructor
-@Getter
+@AllArgsConstructor
 @Setter
-public class RegisterRequest {
+@Getter
+public class UserRequestDTO {
     @NotBlank
     public String firstName;
     @NotBlank
     public String lastName;
     @NotBlank
     public String userName;
-    // @Min(value = 8, message="Password must not be less than 8 characters.")
-    @NotBlank
-    public String password;
     @Email
     public String email;
     @NotBlank
